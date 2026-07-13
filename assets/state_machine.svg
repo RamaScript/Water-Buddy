@@ -39,9 +39,9 @@
   <rect x="158.78925000000004" y="426.30000000000007" width="65.76400000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
   <text x="191.67125000000004" y="441.45000000000005" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">App starts</text>
 </g>
-<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires (every 5 sec now)">
-  <rect x="105.68900000000004" y="579.5" width="152.48800000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
-  <text x="181.93300000000005" y="594.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires (every 5 sec now)</text>
+<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires (default: 30 min)">
+  <rect x="110.68900000000004" y="579.5" width="142.48800000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="181.93300000000005" y="594.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires (default: 30 min)</text>
 </g>
 <g class="edge-label" data-from="WALKING_IN" data-to="ASKING" data-label="Pet reaches position">
   <rect x="36" y="547.2" width="113.87800000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
@@ -67,9 +67,9 @@
   <rect x="254.07675" y="426.30000000000007" width="93.68200000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
   <text x="300.91775" y="441.45000000000005" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Pet exits screen</text>
 </g>
-<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires again">
-  <rect x="262.177" y="603.5" width="96.05800000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
-  <text x="310.206" y="618.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires again</text>
+<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires again (default: 30 min)">
+  <rect x="232.177" y="603.5" width="156.05800000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="310.206" y="618.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires again (default: 30 min)</text>
 </g>
 <g class="node" data-id="_start" data-label="" data-shape="state-start">
   <circle cx="191.78925000000004" cy="364.85" r="12" fill="var(--_text)" stroke="none" />

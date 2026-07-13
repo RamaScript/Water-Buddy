@@ -52,7 +52,7 @@ Click **"Yes"** and it celebrates! Click **"Snooze"** and it comes back later. S
 Water Buddy follows a **State Machine** pattern. Here's the complete lifecycle:
 
 <p align="center">
-  <img src="assets/download.svg" width="460" alt="State Machine Diagram">
+  <img src="assets/state_machine.svg" width="460" alt="State Machine Diagram">
 </p>
 
 ### The Flow:
@@ -184,7 +184,7 @@ assets/
 ├── walk_out3.png     # Walk-out frame 3
 ├── walk_out4.png     # Walk-out frame 4
 ├── notification.wav  # Water-drop sound effect
-└── download.svg      # State machine diagram
+└── state_machine.svg   # State machine diagram
 ```
 
 ---
@@ -281,7 +281,7 @@ water-buddy/
     ├── walk_in[1-4].png
     ├── walk_out[1-4].png
     ├── notification.wav
-    └── download.svg
+    └── state_machine.svg
 ```
 
 ---
