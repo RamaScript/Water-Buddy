@@ -8,10 +8,10 @@ from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel,
     QSpinBox, QCheckBox, QLineEdit, QPushButton,
     QTimeEdit, QFrame, QProgressBar, QWidget,
-    QTabWidget,
+    QTabWidget, QGraphicsDropShadowEffect,
 )
 from PyQt6.QtCore import Qt, QTime
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QColor
 
 if TYPE_CHECKING:
     from settings import SettingsManager
@@ -19,119 +19,187 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("WaterBuddy")
 
-# ── Shared Styles ────────────────────────────────────────────────
+# ── Palette ────────────────────────────────────────────────────────
+BG      = "#1e1e2e"
+SURFACE = "#313244"
+OVERLAY = "#45475a"
+TEXT    = "#cdd6f4"
+SUBTEXT = "#a6adc8"
+MUTED   = "#6c7086"
+BLUE    = "#89b4fa"
+GREEN   = "#a6e3a1"
+PEACH   = "#fab387"
+RED     = "#f38ba8"
 
-DIALOG_STYLE = """
-QDialog {
-    background-color: #1e1e2e;
-    color: #cdd6f4;
-}
-QLabel {
-    color: #cdd6f4;
+DIALOG_STYLE = f"""
+QDialog {{
+    background-color: {BG};
+    color: {TEXT};
+}}
+QWidget {{
+    background-color: {BG};
+}}
+QLabel {{
+    color: {TEXT};
     font-size: 13px;
-}
-QLabel#heading {
+    background: transparent;
+}}
+QLabel#heading {{
     font-size: 20px;
     font-weight: bold;
-    color: #89b4fa;
-}
-QLabel#subheading {
+    color: {BLUE};
+}}
+QLabel#section {{
     font-size: 11px;
-    color: #6c7086;
-}
-QSpinBox, QTimeEdit, QLineEdit {
-    background-color: #313244;
-    color: #cdd6f4;
-    border: 1px solid #45475a;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 13px;
-}
-QSpinBox::up-button, QSpinBox::down-button,
-QTimeEdit::up-button, QTimeEdit::down-button {
-    background-color: #45475a;
-    border-radius: 3px;
-    width: 18px;
-}
-QCheckBox {
-    color: #cdd6f4;
-    font-size: 13px;
-    spacing: 8px;
-}
-QCheckBox::indicator {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #45475a;
-    border-radius: 4px;
-    background-color: #313244;
-}
-QCheckBox::indicator:checked {
-    background-color: #89b4fa;
-    border-color: #89b4fa;
-}
-QPushButton#save {
-    background-color: #a6e3a1;
-    color: #1e1e2e;
-    border: none;
+    font-weight: 700;
+    color: {MUTED};
+    letter-spacing: 1px;
+}}
+QLabel#hint {{
+    font-size: 12px;
+    color: {BLUE};
+}}
+QLabel#hint_warn {{
+    font-size: 12px;
+    color: {PEACH};
+}}
+QLabel#hint_error {{
+    font-size: 12px;
+    color: {RED};
+}}
+QSpinBox, QTimeEdit, QLineEdit {{
+    background-color: {SURFACE};
+    color: {TEXT};
+    border: 2px solid {OVERLAY};
     border-radius: 8px;
-    padding: 10px 28px;
+    padding: 8px 12px;
+    font-size: 14px;
+}}
+QSpinBox:focus, QTimeEdit:focus, QLineEdit:focus {{
+    border-color: {BLUE};
+}}
+QSpinBox:disabled, QTimeEdit:disabled {{
+    color: {MUTED};
+    border-color: {SURFACE};
+    background-color: {BG};
+}}
+QSpinBox::up-button, QSpinBox::down-button,
+QTimeEdit::up-button, QTimeEdit::down-button {{
+    background-color: {OVERLAY};
+    border-radius: 4px;
+    width: 20px;
+}}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover,
+QTimeEdit::up-button:hover, QTimeEdit::down-button:hover {{
+    background-color: {BLUE};
+}}
+QCheckBox {{
+    color: {TEXT};
+    font-size: 13px;
+    spacing: 10px;
+}}
+QCheckBox::indicator {{
+    width: 20px;
+    height: 20px;
+    border: 2px solid {OVERLAY};
+    border-radius: 6px;
+    background-color: {SURFACE};
+}}
+QCheckBox::indicator:checked {{
+    background-color: {BLUE};
+    border-color: {BLUE};
+    image: none;
+}}
+QCheckBox:disabled {{
+    color: {MUTED};
+}}
+QPushButton#save {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 {GREEN}, stop:1 #94e2d5);
+    color: {BG};
+    border: none;
+    border-radius: 10px;
+    padding: 11px 32px;
     font-size: 14px;
     font-weight: bold;
-}
-QPushButton#save:hover {
-    background-color: #94e2d5;
-}
-QPushButton#cancel {
-    background-color: #45475a;
-    color: #cdd6f4;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 28px;
+}}
+QPushButton#save:hover {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #94e2d5, stop:1 {GREEN});
+}}
+QPushButton#cancel {{
+    background-color: {SURFACE};
+    color: {SUBTEXT};
+    border: 1px solid {OVERLAY};
+    border-radius: 10px;
+    padding: 11px 32px;
     font-size: 14px;
-}
-QPushButton#cancel:hover {
-    background-color: #585b70;
-}
-QTabWidget::pane {
-    border: 1px solid #45475a;
-    border-radius: 8px;
-    background-color: #1e1e2e;
-}
-QTabBar::tab {
-    background-color: #313244;
-    color: #6c7086;
-    padding: 8px 20px;
+}}
+QPushButton#cancel:hover {{
+    background-color: {OVERLAY};
+    color: {TEXT};
+}}
+QTabWidget::pane {{
+    border: 1px solid {OVERLAY};
+    border-radius: 10px;
+    background-color: {BG};
+    top: -1px;
+}}
+QTabBar::tab {{
+    background-color: {SURFACE};
+    color: {MUTED};
+    padding: 9px 22px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    margin-right: 2px;
+    margin-right: 3px;
     font-size: 13px;
-}
-QTabBar::tab:selected {
-    background-color: #1e1e2e;
-    color: #89b4fa;
+}}
+QTabBar::tab:selected {{
+    background-color: {BG};
+    color: {BLUE};
     font-weight: bold;
-}
-QProgressBar {
-    background-color: #313244;
+    border-bottom: 2px solid {BLUE};
+}}
+QTabBar::tab:hover:!selected {{
+    color: {TEXT};
+    background-color: {OVERLAY};
+}}
+QProgressBar {{
+    background-color: {SURFACE};
     border: none;
     border-radius: 8px;
-    height: 20px;
+    min-height: 18px;
+    max-height: 18px;
     text-align: center;
-    color: #1e1e2e;
+    color: {BG};
     font-weight: bold;
-}
-QProgressBar::chunk {
-    background-color: #89b4fa;
+    font-size: 11px;
+}}
+QProgressBar::chunk {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 {BLUE}, stop:1 #74c7ec);
     border-radius: 8px;
-}
+}}
 """
 
 
 def _separator() -> QFrame:
     line = QFrame()
     line.setFrameShape(QFrame.Shape.HLine)
-    line.setStyleSheet("background-color: #45475a; max-height: 1px; margin: 8px 0;")
+    line.setStyleSheet(f"background-color: {OVERLAY}; max-height: 1px; margin: 4px 0; border: none;")
     return line
+
+
+def _section_label(text: str) -> QLabel:
+    lbl = QLabel(text.upper())
+    lbl.setObjectName("section")
+    return lbl
+
+
+def _hint(text: str, kind: str = "hint") -> QLabel:
+    lbl = QLabel(text)
+    lbl.setObjectName(kind)
+    return lbl
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -141,37 +209,42 @@ def _separator() -> QFrame:
 class SettingsDialog(QDialog):
     """Combined Settings & Stats window with tabs."""
 
-    def __init__(self, settings: "SettingsManager", stats: "StatsManager", parent=None):
+    def __init__(self, settings: "SettingsManager", stats: "StatsManager",
+                 start_tab: int = 0, parent=None):
         super().__init__(parent)
         self.settings = settings
         self.stats = stats
 
         self.setWindowTitle("Water Buddy — Settings")
-        self.setFixedSize(420, 520)
+        self.setFixedSize(440, 560)
         self.setStyleSheet(DIALOG_STYLE)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
         layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        layout.setSpacing(14)
+        layout.setContentsMargins(20, 20, 20, 20)
 
         # Title
-        title = QLabel("💧 Water Buddy")
+        title = QLabel("💧  Water Buddy")
         title.setObjectName("heading")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
         # Tabs
-        tabs = QTabWidget()
-        tabs.addTab(self._build_settings_tab(), "⚙️ Settings")
-        tabs.addTab(self._build_stats_tab(), "📊 Stats")
-        layout.addWidget(tabs)
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self._build_settings_tab(), "⚙️  Settings")
+        self.tabs.addTab(self._build_stats_tab(), "📊  Stats")
+        self.tabs.setCurrentIndex(start_tab)
+        layout.addWidget(self.tabs)
 
         # Buttons
         btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(10)
         self.cancel_btn = QPushButton("Cancel")
         self.cancel_btn.setObjectName("cancel")
         self.cancel_btn.clicked.connect(self.reject)
 
-        self.save_btn = QPushButton("Save")
+        self.save_btn = QPushButton("Save Changes")
         self.save_btn.setObjectName("save")
         self.save_btn.clicked.connect(self._save_and_close)
 
@@ -184,66 +257,127 @@ class SettingsDialog(QDialog):
     def _build_settings_tab(self) -> QWidget:
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.setSpacing(10)
+        layout.setSpacing(8)
+        layout.setContentsMargins(12, 16, 12, 12)
 
-        # Name
-        layout.addWidget(QLabel("👤 Your Name"))
+        # ── Profile ──────────────────────────
+        layout.addWidget(_section_label("Profile"))
+        layout.addSpacing(4)
+
+        name_row = QHBoxLayout()
+        name_lbl = QLabel("👤  Your Name")
+        name_lbl.setFixedWidth(130)
+        name_row.addWidget(name_lbl)
         self.name_input = QLineEdit(self.settings.user_name)
-        self.name_input.setPlaceholderText("Enter your name...")
-        layout.addWidget(self.name_input)
-
+        self.name_input.setPlaceholderText("Enter your name…")
+        self.name_input.setToolTip("Used in greeting messages like \"Hey Rama!\"")
+        name_row.addWidget(self.name_input)
+        layout.addLayout(name_row)
         layout.addWidget(_separator())
 
-        # Reminder Interval
-        layout.addWidget(QLabel("⏰ Reminder Interval (minutes)"))
+        # ── Reminders ──────────────────────────
+        layout.addWidget(_section_label("Reminders"))
+        layout.addSpacing(4)
+
+        int_row = QHBoxLayout()
+        int_lbl = QLabel("⏰  Interval")
+        int_lbl.setFixedWidth(130)
+        int_lbl.setToolTip("How often the pet appears to ask if you drank water")
+        int_row.addWidget(int_lbl)
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(5, 120)
         self.interval_spin.setSuffix("  min")
         self.interval_spin.setValue(self.settings.get("reminder_interval_min"))
-        layout.addWidget(self.interval_spin)
+        self.interval_spin.setToolTip("Minimum: 5 min  |  Maximum: 120 min (2 hours)")
+        self.interval_spin.valueChanged.connect(self._on_interval_changed)
+        int_row.addWidget(self.interval_spin)
+        layout.addLayout(int_row)
 
-        # Snooze Duration
-        layout.addWidget(QLabel("😴 Snooze Duration (minutes)"))
+        self.interval_hint = _hint("💧  I'll visit you every 30 minutes")
+        layout.addWidget(self.interval_hint)
+        self._on_interval_changed(self.interval_spin.value())
+
+        layout.addSpacing(6)
+
+        snooze_row = QHBoxLayout()
+        snooze_lbl = QLabel("😴  Snooze")
+        snooze_lbl.setFixedWidth(130)
+        snooze_lbl.setToolTip("How long to wait before reminding again after Snooze")
+        snooze_row.addWidget(snooze_lbl)
         self.snooze_spin = QSpinBox()
         self.snooze_spin.setRange(1, 30)
         self.snooze_spin.setSuffix("  min")
         self.snooze_spin.setValue(self.settings.get("snooze_duration_min"))
-        layout.addWidget(self.snooze_spin)
+        self.snooze_spin.setToolTip("Minimum: 1 min  |  Maximum: 30 min")
+        self.snooze_spin.valueChanged.connect(self._on_snooze_changed)
+        snooze_row.addWidget(self.snooze_spin)
+        layout.addLayout(snooze_row)
+
+        self.snooze_hint = _hint("😴  I'll come back in 5 minutes")
+        layout.addWidget(self.snooze_hint)
+        self._on_snooze_changed(self.snooze_spin.value())
 
         layout.addWidget(_separator())
 
-        # Quiet Hours
-        self.quiet_check = QCheckBox("🔇 Enable Quiet Hours")
+        # ── Quiet Hours ──────────────────────────
+        layout.addWidget(_section_label("Quiet Hours"))
+        layout.addSpacing(4)
+
+        self.quiet_check = QCheckBox("🔇  No reminders during these hours")
         self.quiet_check.setChecked(self.settings.quiet_hours_enabled)
+        self.quiet_check.setToolTip("Enable to stop reminders while you sleep")
+        self.quiet_check.toggled.connect(self._on_quiet_toggled)
         layout.addWidget(self.quiet_check)
 
-        time_layout = QHBoxLayout()
-        time_layout.addWidget(QLabel("From:"))
+        time_row = QHBoxLayout()
+        time_row.setSpacing(8)
+        from_lbl = QLabel("From")
+        from_lbl.setFixedWidth(36)
+        time_row.addWidget(from_lbl)
         self.quiet_start = QTimeEdit()
         self.quiet_start.setDisplayFormat("hh:mm AP")
+        self.quiet_start.setToolTip("Quiet hours begin at this time")
         h, m = self.settings.quiet_hours_start.split(":")
         self.quiet_start.setTime(QTime(int(h), int(m)))
-        time_layout.addWidget(self.quiet_start)
+        self.quiet_start.timeChanged.connect(self._on_quiet_time_changed)
+        time_row.addWidget(self.quiet_start)
 
-        time_layout.addWidget(QLabel("To:"))
+        to_lbl = QLabel("To")
+        to_lbl.setFixedWidth(24)
+        time_row.addWidget(to_lbl)
         self.quiet_end = QTimeEdit()
         self.quiet_end.setDisplayFormat("hh:mm AP")
+        self.quiet_end.setToolTip("Quiet hours end at this time")
         h, m = self.settings.quiet_hours_end.split(":")
         self.quiet_end.setTime(QTime(int(h), int(m)))
-        time_layout.addWidget(self.quiet_end)
-        layout.addLayout(time_layout)
+        self.quiet_end.timeChanged.connect(self._on_quiet_time_changed)
+        time_row.addWidget(self.quiet_end)
+        layout.addLayout(time_row)
+
+        self.quiet_hint = _hint("")
+        layout.addWidget(self.quiet_hint)
+        self._on_quiet_toggled(self.quiet_check.isChecked())
 
         layout.addWidget(_separator())
 
-        # Sound
-        self.sound_check = QCheckBox("🔔 Play sound when pet appears")
+        # ── Other ──────────────────────────
+        layout.addWidget(_section_label("Other"))
+        layout.addSpacing(4)
+
+        self.sound_check = QCheckBox("🔔  Play sound when pet appears")
         self.sound_check.setChecked(self.settings.sound_enabled)
+        self.sound_check.setToolTip("Plays a water-drop sound when your buddy walks in")
         layout.addWidget(self.sound_check)
 
-        # Launch at Login
-        self.login_check = QCheckBox("🚀 Launch at Login")
+        self.login_check = QCheckBox("🚀  Launch at Login")
         self.login_check.setChecked(self.settings.get("launch_at_login"))
+        self.login_check.setToolTip("Automatically start Water Buddy when your Mac boots")
+        self.login_check.toggled.connect(self._on_login_toggled)
         layout.addWidget(self.login_check)
+
+        self.login_hint = _hint("")
+        layout.addWidget(self.login_hint)
+        self._on_login_toggled(self.login_check.isChecked())
 
         layout.addStretch()
         return tab
@@ -253,63 +387,177 @@ class SettingsDialog(QDialog):
     def _build_stats_tab(self) -> QWidget:
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.setSpacing(14)
+        layout.setSpacing(12)
+        layout.setContentsMargins(12, 16, 12, 12)
 
-        # Today's progress
         count = self.stats.today_count()
-        goal = self.stats.daily_goal
+        goal  = self.stats.daily_goal
+        pct   = int(self.stats.today_progress() * 100)
 
-        today_label = QLabel(f"💧 Today: {count} / {goal} glasses")
+        # Today's count
+        today_label = QLabel(f"💧  Today: {count} / {goal} glasses")
         today_label.setObjectName("heading")
         today_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(today_label)
 
+        # Progress bar
         progress = QProgressBar()
         progress.setRange(0, 100)
-        progress.setValue(int(self.stats.today_progress() * 100))
-        progress.setFormat(f"{int(self.stats.today_progress() * 100)}%")
+        progress.setValue(pct)
+        progress.setFormat(f"{pct}%  ({count}/{goal})")
         layout.addWidget(progress)
+
+        # Motivational message
+        if count == 0:
+            msg = "No drinks yet today — let's get started! 🌊"
+            color = MUTED
+        elif count < goal // 2:
+            msg = f"Keep going! {goal - count} more to hit your goal 💪"
+            color = PEACH
+        elif count < goal:
+            msg = f"Almost there! Just {goal - count} more to go 🔥"
+            color = BLUE
+        else:
+            msg = "🎉 Goal reached! You're crushing it today!"
+            color = GREEN
+
+        msg_lbl = QLabel(msg)
+        msg_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        msg_lbl.setWordWrap(True)
+        msg_lbl.setStyleSheet(f"color: {color}; font-size: 13px; font-style: italic; background: transparent;")
+        layout.addWidget(msg_lbl)
 
         layout.addWidget(_separator())
 
         # Streak
         streak = self.stats.streak()
-        streak_label = QLabel(f"🔥 Current Streak: {streak} day{'s' if streak != 1 else ''}")
-        streak_label.setStyleSheet("font-size: 16px; color: #fab387;")
+        streak_text = f"{'🔥' * min(streak, 5)}  {streak} day streak" if streak > 0 else "0 day streak  —  start one today!"
+        streak_label = QLabel(streak_text)
+        streak_label.setStyleSheet(f"font-size: 17px; color: {PEACH}; font-weight: bold; background: transparent;")
         streak_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(streak_label)
 
         layout.addWidget(_separator())
 
-        # Today's drink times
-        times = self.stats.today_times()
-        if times:
-            layout.addWidget(QLabel("📋 Today's Drink Log:"))
-            times_text = "   •   ".join(times)
-            log_label = QLabel(times_text)
-            log_label.setWordWrap(True)
-            log_label.setStyleSheet("color: #a6e3a1; font-size: 12px;")
-            layout.addWidget(log_label)
-        else:
-            no_drinks = QLabel("No drinks recorded yet today. Stay hydrated! 💧")
-            no_drinks.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            no_drinks.setStyleSheet("color: #6c7086; font-style: italic;")
-            layout.addWidget(no_drinks)
-
-        layout.addWidget(_separator())
-
-        # Daily Goal
-        goal_layout = QHBoxLayout()
-        goal_layout.addWidget(QLabel("🎯 Daily Goal:"))
+        # Daily goal setter
+        layout.addWidget(_section_label("Daily Goal"))
+        layout.addSpacing(4)
+        goal_row = QHBoxLayout()
+        goal_lbl = QLabel("🎯  Target glasses")
+        goal_lbl.setFixedWidth(150)
+        goal_row.addWidget(goal_lbl)
         self.goal_spin = QSpinBox()
         self.goal_spin.setRange(1, 20)
         self.goal_spin.setSuffix("  glasses")
         self.goal_spin.setValue(self.stats.daily_goal)
-        goal_layout.addWidget(self.goal_spin)
-        layout.addLayout(goal_layout)
+        self.goal_spin.setToolTip("How many glasses of water do you want to drink each day?")
+        self.goal_spin.valueChanged.connect(self._on_goal_changed)
+        goal_row.addWidget(self.goal_spin)
+        layout.addLayout(goal_row)
+
+        self.goal_hint = _hint(f"🎯  {self.stats.daily_goal} glasses is your daily target")
+        layout.addWidget(self.goal_hint)
+
+        layout.addWidget(_separator())
+
+        # Drink log
+        times = self.stats.today_times()
+        if times:
+            layout.addWidget(_section_label("Today's Log"))
+            layout.addSpacing(4)
+            log_box = QFrame()
+            log_box.setStyleSheet(f"background-color: {SURFACE}; border-radius: 8px;")
+            log_layout = QVBoxLayout(log_box)
+            log_layout.setContentsMargins(12, 10, 12, 10)
+            log_layout.setSpacing(4)
+            for t in times[-6:]:  # last 6 entries
+                row = QLabel(f"💧  {t}")
+                row.setStyleSheet(f"color: {GREEN}; font-size: 12px; background: transparent;")
+                log_layout.addWidget(row)
+            if len(times) > 6:
+                more = QLabel(f"  …and {len(times)-6} more earlier today")
+                more.setStyleSheet(f"color: {MUTED}; font-size: 11px; background: transparent;")
+                log_layout.addWidget(more)
+            layout.addWidget(log_box)
+        else:
+            no_drinks = QLabel("No drinks logged yet today.\nStay hydrated! 💧")
+            no_drinks.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            no_drinks.setWordWrap(True)
+            no_drinks.setStyleSheet(f"color: {MUTED}; font-style: italic; background: transparent;")
+            layout.addWidget(no_drinks)
 
         layout.addStretch()
         return tab
+
+    # ── Live feedback callbacks ──────────────────────────────────
+
+    def _on_interval_changed(self, val: int):
+        if val == 5:
+            self.interval_hint.setObjectName("hint_warn")
+            self.interval_hint.setText("⚡  Very frequent! Every 5 minutes.")
+        elif val <= 15:
+            self.interval_hint.setObjectName("hint")
+            self.interval_hint.setText(f"💧  I'll visit you every {val} minutes")
+        elif val == 30:
+            self.interval_hint.setObjectName("hint")
+            self.interval_hint.setText(f"💧  Every {val} minutes  ← Recommended default")
+        elif val >= 90:
+            self.interval_hint.setObjectName("hint_warn")
+            self.interval_hint.setText(f"💤  Long gap — {val} min ({val//60}h {val%60}m) between reminders")
+        else:
+            self.interval_hint.setObjectName("hint")
+            self.interval_hint.setText(f"💧  I'll visit you every {val} minutes")
+        self.interval_hint.setStyleSheet("")
+        self.setStyleSheet(DIALOG_STYLE)
+
+    def _on_snooze_changed(self, val: int):
+        if val == 1:
+            self.snooze_hint.setObjectName("hint_warn")
+            self.snooze_hint.setText("⚡  Very short snooze — 1 minute!")
+        else:
+            self.snooze_hint.setObjectName("hint")
+            self.snooze_hint.setText(f"😴  I'll come back in {val} minute{'s' if val != 1 else ''}")
+        self.snooze_hint.setStyleSheet("")
+        self.setStyleSheet(DIALOG_STYLE)
+
+    def _on_quiet_toggled(self, checked: bool):
+        self.quiet_start.setEnabled(checked)
+        self.quiet_end.setEnabled(checked)
+        if checked:
+            self._on_quiet_time_changed()
+        else:
+            self.quiet_hint.setObjectName("hint")
+            self.quiet_hint.setText("")
+        self.quiet_hint.setStyleSheet("")
+        self.setStyleSheet(DIALOG_STYLE)
+
+    def _on_quiet_time_changed(self):
+        if not self.quiet_check.isChecked():
+            return
+        start = self.quiet_start.time()
+        end   = self.quiet_end.time()
+        start_str = start.toString("h:mm AP")
+        end_str   = end.toString("h:mm AP")
+        if start == end:
+            self.quiet_hint.setObjectName("hint_error")
+            self.quiet_hint.setText("⚠️  Start and end times are the same")
+        else:
+            self.quiet_hint.setObjectName("hint")
+            self.quiet_hint.setText(f"🔇  No reminders from {start_str} to {end_str}")
+        self.quiet_hint.setStyleSheet("")
+        self.setStyleSheet(DIALOG_STYLE)
+
+    def _on_login_toggled(self, checked: bool):
+        if checked:
+            self.login_hint.setObjectName("hint")
+            self.login_hint.setText("✅  Water Buddy will start when your Mac logs in")
+        else:
+            self.login_hint.setText("")
+        self.login_hint.setStyleSheet("")
+        self.setStyleSheet(DIALOG_STYLE)
+
+    def _on_goal_changed(self, val: int):
+        self.goal_hint.setText(f"🎯  {val} glass{'es' if val != 1 else ''} is your daily target")
 
     # ── Save ────────────────────────────────────────────────────
 

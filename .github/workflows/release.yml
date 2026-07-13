@@ -2,77 +2,101 @@ name: Build and Release Apps
 
 on:
   push:
-    tags:
-      - 'v*' # Trigger workflow on tags starting with v (e.g., v1.0.0)
-  workflow_dispatch: # Allow manual trigger from GitHub UI
+    branches:
+      - main   # Just push to main — that's it. No tags needed.
+
+# Fix 403: Give this workflow permission to create releases
+permissions:
+  contents: write
 
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
         include:
           - os: macos-latest
             artifact_name: WaterBuddy-macOS
             asset_name: WaterBuddy-macOS.zip
-            build_cmd: pyinstaller waterbuddy.spec --clean -y
-            compress_cmd: |
-              cd dist
-              zip -r ../WaterBuddy-macOS.zip WaterBuddy.app
           - os: windows-latest
             artifact_name: WaterBuddy-Windows
             asset_name: WaterBuddy-Windows.zip
-            build_cmd: pyinstaller waterbuddy.spec --clean -y
-            compress_cmd: |
-              cd dist
-              Compress-Archive -Path WaterBuddy -DestinationPath ..\WaterBuddy-Windows.zip
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        cache: 'pip'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
 
-    - name: Build with PyInstaller
-      run: ${{ matrix.build_cmd }}
+      - name: Build with PyInstaller (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          pyinstaller waterbuddy.spec --clean -y
+          cd dist && zip -r ../WaterBuddy-macOS.zip WaterBuddy.app
 
-    - name: Compress App
-      run: ${{ matrix.compress_cmd }}
+      - name: Build with PyInstaller (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          pyinstaller waterbuddy.spec --clean -y
+          Compress-Archive -Path dist/WaterBuddy -DestinationPath WaterBuddy-Windows.zip
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.artifact_name }}
-        path: ${{ matrix.asset_name }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.asset_name }}
+          retention-days: 1
 
   release:
-    name: Create GitHub Release
+    name: Publish GitHub Release
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          artifacts/WaterBuddy-macOS/WaterBuddy-macOS.zip
-          artifacts/WaterBuddy-Windows/WaterBuddy-Windows.zip
-        generate_release_notes: true
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate version tag
+        id: version
+        run: |
+          VERSION="v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "Built version: $VERSION"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "💧 Water Buddy ${{ steps.version.outputs.tag }}"
+          body: |
+            ## 💧 Water Buddy — Automated Build
+
+            Built from commit `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            ### Download
+            | Platform | File |
+            |----------|------|
+            | 🍎 macOS | `WaterBuddy-macOS.zip` → unzip → drag `WaterBuddy.app` to Applications |
+            | 🪟 Windows | `WaterBuddy-Windows.zip` → unzip → run `WaterBuddy.exe` |
+          files: |
+            artifacts/WaterBuddy-macOS/WaterBuddy-macOS.zip
+            artifacts/WaterBuddy-Windows/WaterBuddy-Windows.zip
+          generate_release_notes: false

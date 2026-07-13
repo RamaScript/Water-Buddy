@@ -14,9 +14,10 @@ DEFAULTS = {
     "quiet_hours_enabled": False,
     "quiet_hours_start": "22:00",
     "quiet_hours_end": "07:00",
-    "user_name": "Buddy",
+    "user_name": "",
     "sound_enabled": True,
     "launch_at_login": False,
+    "first_run": True,
 }
 
 class SettingsManager:

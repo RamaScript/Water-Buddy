@@ -18,6 +18,7 @@ from settings import SettingsManager
 from stats import StatsManager
 from tray import SystemTrayApp
 from settings_window import SettingsDialog
+from onboarding import OnboardingWizard
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,12 +30,25 @@ ASSETS_DIR = Path(__file__).resolve().parent / "assets"
 PLIST_LABEL = "com.waterbuddy.app"
 
 
+def _hide_from_dock() -> None:
+    """Remove Water Buddy from the macOS Dock — menu-bar-only app."""
+    try:
+        from AppKit import NSApplication, NSApplicationActivationPolicy
+        ns_app = NSApplication.sharedApplication()
+        # NSApplicationActivationPolicyAccessory = 1 (background agent, no Dock icon)
+        ns_app.setActivationPolicy_(1)
+        logger.info("App hidden from Dock via AppKit.")
+    except Exception as exc:
+        # Falls back to LSUIElement in .app bundle — no action needed
+        logger.debug("Could not set Dock policy via AppKit: %s", exc)
+
+
 class PetState(Enum):
-    HIDDEN = auto()
-    WALKING_IN = auto()
-    ASKING = auto()
-    REJOICING = auto()
-    SAD = auto()
+    HIDDEN      = auto()
+    WALKING_IN  = auto()
+    ASKING      = auto()
+    REJOICING   = auto()
+    SAD         = auto()
     WALKING_OUT = auto()
 
 
@@ -84,17 +98,32 @@ class AppController:
         self.move_timer = QTimer()
         self.move_timer.timeout.connect(self._move_step)
 
-        # Apply launch-at-login on start
-        self._sync_launch_at_login()
-        self._update_tray_stats()
-
     # ── main loop ───────────────────────────────────────────────
 
     def run(self) -> None:
         logger.info("Starting Water Buddy application...")
         self.ui.hide_window()
-        self.reminders.start()
+
+        if self.settings.get("first_run"):
+            # Delay slightly so the event loop is running before we open the dialog
+            QTimer.singleShot(300, self._show_onboarding)
+        else:
+            self._start_normal()
+
         sys.exit(self.app.exec())
+
+    def _show_onboarding(self) -> None:
+        wizard = OnboardingWizard(
+            settings=self.settings,
+            on_complete=self._start_normal,
+        )
+        wizard.exec()
+
+    def _start_normal(self) -> None:
+        """Called after onboarding is done (or skipped on subsequent runs)."""
+        self._sync_launch_at_login()
+        self._update_tray_stats()
+        self.reminders.start()
 
     # ── reminder handling ───────────────────────────────────────
 
@@ -117,7 +146,6 @@ class AppController:
         self.ui.show_window()
         self.animations.play_walk_in()
 
-        # Play sound
         if self.settings.sound_enabled:
             self.sound.play()
 
@@ -191,9 +219,8 @@ class AppController:
         logger.info("Drink recorded via tray. Today: %d", self.stats.today_count())
 
     def open_settings(self) -> None:
-        dialog = SettingsDialog(self.settings, self.stats)
+        dialog = SettingsDialog(self.settings, self.stats, start_tab=0)
         if dialog.exec():
-            # Settings saved, apply changes
             logger.info("Settings updated. Restarting timer with new interval.")
             if not self.reminders.is_paused:
                 self.reminders.start()
@@ -201,11 +228,7 @@ class AppController:
             self._update_tray_stats()
 
     def open_stats(self) -> None:
-        """Open settings dialog on the Stats tab."""
-        dialog = SettingsDialog(self.settings, self.stats)
-        # Switch to stats tab (index 1)
-        tabs = dialog.findChild(type(dialog.findChildren(type(dialog))[0].__class__) 
-                                if dialog.findChildren(type(dialog)) else None)
+        dialog = SettingsDialog(self.settings, self.stats, start_tab=1)
         dialog.exec()
         self._update_tray_stats()
 
@@ -221,7 +244,7 @@ class AppController:
 
     def _sync_launch_at_login(self) -> None:
         """Create or remove a macOS LaunchAgent plist for auto-start."""
-        plist_dir = Path.home() / "Library" / "LaunchAgents"
+        plist_dir  = Path.home() / "Library" / "LaunchAgents"
         plist_path = plist_dir / f"{PLIST_LABEL}.plist"
         python_path = Path(sys.executable).resolve()
         script_path = Path(__file__).resolve()
@@ -257,5 +280,9 @@ class AppController:
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # Keep running when windows close
+
+    # Hide from macOS Dock — this is a menu-bar-only background agent
+    _hide_from_dock()
+
     controller = AppController(app)
     controller.run()
