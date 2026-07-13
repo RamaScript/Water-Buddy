@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 459.53675 729.6999999999999" width="459.53675" height="729.6999999999999" style="--bg:#1F1F1F;--fg:#CCCCCC;--line:#CCCCCC;--accent:#0078D4;--muted:#CCCCCCCC;--surface:#181818;--border:#CCCCCC;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<polyline class="edge" data-from="_start" data-to="HIDDEN" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="App starts" points="191.78925000000004,378.85 191.78925000000004,487.6000000000001 231.53733333333338,487.6000000000001 231.53733333333338,499.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="HIDDEN" data-to="WALKING_IN" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Timer fires (every 5 sec now)" points="231.53733333333338,536.5 231.53733333333338,572.5 182.18900000000002,572.5 182.18900000000002,652.8" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="WALKING_IN" data-to="ASKING" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Pet reaches position" points="152.25025000000002,652.8 152.25025000000002,640.8 93,640.8 93,112.9 220.04625000000001,112.9 220.04625000000001,76.9" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="ASKING" data-to="REJOICING" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="User clicks &quot;Yes&quot;" points="242.38975000000002,76.9 242.38975000000002,193.2" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="ASKING" data-to="SAD" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="User clicks &quot;Snooze&quot;" points="264.73325,76.9 264.73325,112.9 359.76375,112.9 359.76375,193.2" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="REJOICING" data-to="WALKING_OUT" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="After 2.5 sec" points="242.38975000000002,230.10000000000002 242.38975000000002,334.40000000000003 278.6475833333334,334.40000000000003 278.6475833333334,350.85" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="SAD" data-to="WALKING_OUT" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="After 2 sec" points="359.76375,230.10000000000002 359.76375,334.40000000000003 323.5059166666667,334.40000000000003 323.5059166666667,350.85" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="WALKING_OUT" data-to="HIDDEN" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Pet exits screen" points="301.07675,387.75 301.07675,487.6000000000001 261.3286666666667,487.6000000000001 261.3286666666667,499.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="HIDDEN" data-to="WALKING_IN" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Timer fires again" points="261.3286666666667,536.5 261.3286666666667,596.5 310.677,596.5 310.677,640.8 212.12775000000005,640.8 212.12775000000005,652.8" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<g class="edge-label" data-from="_start" data-to="HIDDEN" data-label="App starts">
+  <rect x="158.78925000000004" y="426.30000000000007" width="65.76400000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="191.67125000000004" y="441.45000000000005" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">App starts</text>
+</g>
+<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires (default: 30 min)">
+  <rect x="110.68900000000004" y="579.5" width="142.48800000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="181.93300000000005" y="594.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires (default: 30 min)</text>
+</g>
+<g class="edge-label" data-from="WALKING_IN" data-to="ASKING" data-label="Pet reaches position">
+  <rect x="36" y="547.2" width="113.87800000000004" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="92.93900000000002" y="562.35" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Pet reaches position</text>
+</g>
+<g class="edge-label" data-from="ASKING" data-to="REJOICING" data-label="User clicks &quot;Yes&quot;">
+  <rect x="192.88975000000005" y="119.9" width="98.43400000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="242.10675000000006" y="135.05" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">User clicks &quot;Yes&quot;</text>
+</g>
+<g class="edge-label" data-from="ASKING" data-to="SAD" data-label="User clicks &quot;Snooze&quot;">
+  <rect x="301.26375" y="119.9" width="116.25400000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="359.39075" y="135.05" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">User clicks &quot;Snooze&quot;</text>
+</g>
+<g class="edge-label" data-from="REJOICING" data-to="WALKING_OUT" data-label="After 2.5 sec">
+  <rect x="204.38975000000002" y="273.1" width="75.86200000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="242.32075000000003" y="288.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">After 2.5 sec</text>
+</g>
+<g class="edge-label" data-from="SAD" data-to="WALKING_OUT" data-label="After 2 sec">
+  <rect x="325.76374999999996" y="273.1" width="67.54599999999999" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="359.53675" y="288.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">After 2 sec</text>
+</g>
+<g class="edge-label" data-from="WALKING_OUT" data-to="HIDDEN" data-label="Pet exits screen">
+  <rect x="254.07675" y="426.30000000000007" width="93.68200000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="300.91775" y="441.45000000000005" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Pet exits screen</text>
+</g>
+<g class="edge-label" data-from="HIDDEN" data-to="WALKING_IN" data-label="Timer fires again (default: 30 min)">
+  <rect x="232.177" y="603.5" width="156.05800000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="310.206" y="618.65" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Timer fires again (default: 30 min)</text>
+</g>
+<g class="node" data-id="_start" data-label="" data-shape="state-start">
+  <circle cx="191.78925000000004" cy="364.85" r="12" fill="var(--_text)" stroke="none" />
+</g>
+<g class="node" data-id="HIDDEN" data-label="HIDDEN" data-shape="rounded">
+  <rect x="201.74600000000004" y="499.6000000000001" width="89.374" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="246.43300000000005" y="518.0500000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">HIDDEN</text>
+</g>
+<g class="node" data-id="WALKING_IN" data-label="WALKING_IN" data-shape="rounded">
+  <rect x="122.31150000000002" y="652.8" width="119.75500000000001" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="182.18900000000002" y="671.25" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">WALKING_IN</text>
+</g>
+<g class="node" data-id="ASKING" data-label="ASKING" data-shape="rounded">
+  <rect x="197.70275000000004" y="40" width="89.374" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="242.38975000000005" y="58.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">ASKING</text>
+</g>
+<g class="node" data-id="REJOICING" data-label="REJOICING" data-shape="rounded">
+  <rect x="187.32875" y="193.2" width="110.122" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="242.38975000000002" y="211.64999999999998" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">REJOICING</text>
+</g>
+<g class="node" data-id="SAD" data-label="SAD" data-shape="rounded">
+  <rect x="325.45075" y="193.2" width="68.62599999999999" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="359.76375" y="211.64999999999998" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">SAD</text>
+</g>
+<g class="node" data-id="WALKING_OUT" data-label="WALKING_OUT" data-shape="rounded">
+  <rect x="233.78925000000004" y="350.85" width="134.575" height="36.900000000000006" rx="6" ry="6" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="301.07675000000006" y="369.3" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">WALKING_OUT</text>
+</g>
+</svg>
