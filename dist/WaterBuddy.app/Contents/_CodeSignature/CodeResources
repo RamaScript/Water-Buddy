@@ -566,7 +566,7 @@
 		</data>
 		<key>Resources/base_library.zip</key>
 		<data>
-		lAinQgIfERoAzHx3k7IiYDi1HE0=
+		azRMRLIKQBxAA/Mi5bVZjTZJjt8=
 		</data>
 		<key>Resources/icon.icns</key>
 		<data>
@@ -575,6 +575,60 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Frameworks/AppKit/_AppKit.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			TcGULFwgQmrL1pkF8WIlpmQavEU=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"4dc1942c5c20426acbd69905f16225a6641abc45"</string>
+		</dict>
+		<key>Frameworks/AppKit/_inlines.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			1koHxC0JiVqcEnIRCd0/CB279Rs=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"d64a07c42d09895a9c12721109dd3f081dbbf51b"</string>
+		</dict>
+		<key>Frameworks/CoreFoundation/_CoreFoundation.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			QDrQbJVte1k4s5Me/1dvmx1599E=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"403ad06c956d7b5938b3931eff576f9b1d79f7d1"</string>
+		</dict>
+		<key>Frameworks/CoreFoundation/_inlines.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			2aIu0UW/H6NZDpF3YV/THKCc3+s=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"d9a22ed145bf1fa3590e9177615fd31ca09cdfeb"</string>
+		</dict>
+		<key>Frameworks/Foundation/_Foundation.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			bMXriQLz6EzvMI5UlDONnjTQ9S4=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"6cc5eb8902f3e84cef308e5494338d9e34d0f52e"</string>
+		</dict>
+		<key>Frameworks/Foundation/_inlines.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			aTPDHyxHCtQmwgLdeemWFyXOqSI=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"6933c31f2c470ad426c202dd79e9961725cea922"</string>
+		</dict>
 		<key>Frameworks/PyQt6/Qt6/lib/QtConcurrent.framework</key>
 		<dict>
 			<key>cdhash</key>
@@ -1079,6 +1133,15 @@
 			<key>symlink</key>
 			<string>PyQt6/Qt6/lib/libswscale.8.dylib</string>
 		</dict>
+		<key>Frameworks/objc/_objc.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			jp5M3vtKcMMcO6dXRNvVw5DmfUQ=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"8e9e4cdefb4a70c31c3ba75744dbd5c390e67d44"</string>
+		</dict>
 		<key>Frameworks/python3.9</key>
 		<dict>
 			<key>symlink</key>
@@ -1183,6 +1246,15 @@
 			<key>requirement</key>
 			<string>cdhash H"8ede7e67eb731e2a4f14f2e6d707c4bc452f07bc"</string>
 		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/_ctypes.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			w++nzklJtwTc/8Uev9ovtRfi0pA=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"c3efa7ce4949b704dcffc51ebfda2fb517e2d290"</string>
+		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/_datetime.cpython-39-darwin.so</key>
 		<dict>
 			<key>cdhash</key>
@@ -1200,6 +1272,15 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"507e74ef6c83a17826a58dd524e5303deb4fca29"</string>
+		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/_elementtree.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			e+zp1oF+tdNIDf75GYubzGXjsyY=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"7bece9d6817eb5d3480dfef9198b9bcc65e3b326"</string>
 		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/_hashlib.cpython-39-darwin.so</key>
 		<dict>
@@ -1291,6 +1372,15 @@
 			<key>requirement</key>
 			<string>cdhash H"a8bf6101e81c34cccd9ea5b0658be2ed6224440e"</string>
 		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/_scproxy.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			GfDhcjubonzmN5h8WnBTDD47tZk=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"19f0e1723b9ba27ce637987c5a70530c3e3bb599"</string>
+		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/_sha1.cpython-39-darwin.so</key>
 		<dict>
 			<key>cdhash</key>
@@ -1335,6 +1425,15 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"da6be252f2e15c6ade6e0f4720d0c4b52a11fccb"</string>
+		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/_ssl.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			udi1IUbL0z3Ly1BCZCDwhoxYEfA=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"b9d8b52146cbd33dcbcb50426420f0868c5811f0"</string>
 		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/_statistics.cpython-39-darwin.so</key>
 		<dict>
@@ -1390,6 +1489,15 @@
 			<key>requirement</key>
 			<string>cdhash H"368f66bf511a1b8e682565e84fc4e5da4ab8c55e"</string>
 		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/pyexpat.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			Vs1bcOOpZONZS4wPzF3tGsOUGz8=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"56cd5b70e3a964e3594b8c0fcc5ded1ac3941b3f"</string>
+		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/resource.cpython-39-darwin.so</key>
 		<dict>
 			<key>cdhash</key>
@@ -1408,6 +1516,15 @@
 			<key>requirement</key>
 			<string>cdhash H"46ac9f37f73e67edcb0be0ed5ab22437e85bcb1a"</string>
 		</dict>
+		<key>Frameworks/python3__dot__9/lib-dynload/termios.cpython-39-darwin.so</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			UPT6lQ6Pz/HfNxIpXkJUsse5a04=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"50f4fa950e8fcff1df3712295e4254b2c7b96b4e"</string>
+		</dict>
 		<key>Frameworks/python3__dot__9/lib-dynload/unicodedata.cpython-39-darwin.so</key>
 		<dict>
 			<key>cdhash</key>
@@ -1425,6 +1542,21 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"b76805a26abf6804e2650b557d635172a81c1423"</string>
+		</dict>
+		<key>Resources/AppKit</key>
+		<dict>
+			<key>symlink</key>
+			<string>../Frameworks/AppKit</string>
+		</dict>
+		<key>Resources/CoreFoundation</key>
+		<dict>
+			<key>symlink</key>
+			<string>../Frameworks/CoreFoundation</string>
+		</dict>
+		<key>Resources/Foundation</key>
+		<dict>
+			<key>symlink</key>
+			<string>../Frameworks/Foundation</string>
 		</dict>
 		<key>Resources/PyQt6/Qt6/lib</key>
 		<dict>
@@ -2510,7 +2642,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			UrybdwG7PRx+ymw7jlSnsCxwUiCPzWjzHNO0+ZIRs+A=
+			LEvlQ3SJKqzYkvE5LzOtp+S47H0cTvCKgG5HXSFtLzY=
 			</data>
 		</dict>
 		<key>Resources/icon.icns</key>
@@ -2544,6 +2676,11 @@
 		<dict>
 			<key>symlink</key>
 			<string>PyQt6/Qt6/lib/libswscale.8.dylib</string>
+		</dict>
+		<key>Resources/objc</key>
+		<dict>
+			<key>symlink</key>
+			<string>../Frameworks/objc</string>
 		</dict>
 		<key>Resources/python3.9</key>
 		<dict>
