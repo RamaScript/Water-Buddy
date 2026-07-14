@@ -200,7 +200,7 @@ assets/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/water-buddy.git
+git clone https://github.com/ramascript/water-buddy.git
 cd water-buddy
 
 # 2. Create a virtual environment

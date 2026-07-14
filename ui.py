@@ -1,6 +1,7 @@
-"""Desktop pet UI built entirely with PyQt6."""
+"""Desktop pet UI built entirely with PyQt6 — cross-platform (macOS + Windows)."""
 from __future__ import annotations
 
+import sys
 from typing import Callable
 
 from PyQt6.QtWidgets import (
@@ -9,29 +10,42 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
+IS_MAC = sys.platform == "darwin"
+IS_WIN = sys.platform == "win32"
+
 
 class DesktopPetUI(QWidget):
-    WINDOW_WIDTH = 360
+    WINDOW_WIDTH  = 360
     WINDOW_HEIGHT = 360
 
-    BUBBLE_BG = "#fff7df"
+    BUBBLE_BG     = "#fff7df"
     BUBBLE_BORDER = "#3b2f2f"
-    TEXT_COLOR = "#2d2525"
+    TEXT_COLOR    = "#2d2525"
 
     def __init__(self):
         super().__init__()
-        self.on_yes: Callable[[], None] | None = None
+        self.on_yes:    Callable[[], None] | None = None
         self.on_snooze: Callable[[], None] | None = None
         self._configure_window()
         self._build_layout()
 
     def _configure_window(self):
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.WindowStaysOnTopHint |
-            Qt.WindowType.Tool
+        # FramelessWindowHint + TranslucentBackground = transparent floating window
+        # WindowStaysOnTopHint = always on top
+        # On macOS: Qt.WindowType.Tool keeps it out of Mission Control / app switcher
+        # On Windows: Tool makes it skip the taskbar (which is what we want for a pet)
+        flags = (
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.Tool
         )
+        self.setWindowFlags(flags)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        # On Windows, also set WA_NoSystemBackground to avoid black background flash
+        if IS_WIN:
+            self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
+
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
 
     def _build_layout(self):
@@ -53,7 +67,6 @@ class DesktopPetUI(QWidget):
         self.message_label.setStyleSheet(f"""
             color: {self.TEXT_COLOR};
             border: none;
-            font-family: 'Menlo', 'SF Mono', monospace;
             font-size: 13px;
             font-weight: bold;
         """)
@@ -68,6 +81,7 @@ class DesktopPetUI(QWidget):
 
         self.yes_button = QPushButton("Yes ✅")
         self.yes_button.setFixedSize(88, 30)
+        self.yes_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.yes_button.setStyleSheet("""
             QPushButton {
                 background-color: #6bd17b;
@@ -83,6 +97,7 @@ class DesktopPetUI(QWidget):
 
         self.snooze_button = QPushButton("Snooze 😴")
         self.snooze_button.setFixedSize(120, 30)
+        self.snooze_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.snooze_button.setStyleSheet("""
             QPushButton {
                 background-color: #8fd3ff;
@@ -116,7 +131,7 @@ class DesktopPetUI(QWidget):
 
         self.hide_bubble()
 
-    # ── handlers ────────────────────────────────────────────────
+    # ── Handlers ────────────────────────────────────────────────────
 
     def _handle_yes(self):
         if self.on_yes:
@@ -127,14 +142,15 @@ class DesktopPetUI(QWidget):
             self.on_snooze()
 
     def set_button_handlers(self, on_yes, on_snooze):
-        self.on_yes = on_yes
+        self.on_yes    = on_yes
         self.on_snooze = on_snooze
 
-    # ── window control ──────────────────────────────────────────
+    # ── Window control ──────────────────────────────────────────────
 
     def show_window(self):
         self.show()
         self.raise_()
+        self.activateWindow()
 
     def hide_window(self):
         self.hide()
@@ -158,7 +174,7 @@ class DesktopPetUI(QWidget):
     def window_height(self) -> int:
         return self.WINDOW_HEIGHT
 
-    # ── bubble helpers ──────────────────────────────────────────
+    # ── Bubble helpers ──────────────────────────────────────────────
 
     def set_message(self, message: str):
         self.message_label.setText(message)

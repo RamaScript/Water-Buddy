@@ -1,24 +1,32 @@
 # -*- mode: python ; coding: utf-8 -*-
 import platform
-import os
+import sys
 
 block_cipher = None
-os_name = platform.system()
-is_mac = os_name == 'Darwin'
-is_win = os_name == 'Windows'
+is_mac = sys.platform == "darwin"
+is_win = sys.platform == "win32"
 
-icon_path = 'assets/icon.icns' if is_mac else 'assets/icon.ico' if is_win else None
+icon_path = None
+if is_mac:
+    icon_path = "assets/icon.icns"
+elif is_win:
+    icon_path = "assets/icon.ico"
+
+# On Windows, exclude macOS-only packages so the build doesn't fail
+excludes = []
+if is_win:
+    excludes = ["AppKit", "Foundation", "objc", "Cocoa"]
 
 a = Analysis(
-    ['main.py'],
+    ["main.py"],
     pathex=[],
     binaries=[],
-    datas=[('assets', 'assets')],
+    datas=[("assets", "assets")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=excludes,
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
@@ -32,12 +40,12 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='WaterBuddy',
+    name="WaterBuddy",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=False,   # No terminal window on Windows
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -54,18 +62,18 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='WaterBuddy',
+    name="WaterBuddy",
 )
 
 if is_mac:
     app = BUNDLE(
         coll,
-        name='WaterBuddy.app',
+        name="WaterBuddy.app",
         icon=icon_path,
-        bundle_identifier='com.waterbuddy.app',
+        bundle_identifier="com.waterbuddy.app",
         info_plist={
-            'LSUIElement': True,
-            'NSHighResolutionCapable': True,
-            'NSRequiresAquaSystemAppearance': False,
-        }
+            "LSUIElement": True,           # Hide from Dock
+            "NSHighResolutionCapable": True,
+            "NSRequiresAquaSystemAppearance": False,
+        },
     )

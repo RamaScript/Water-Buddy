@@ -1,9 +1,11 @@
-"""Water Buddy — Desktop Pet Water Reminder (PyQt6)."""
+"""Water Buddy — Desktop Pet Water Reminder (PyQt6).
+
+Cross-platform: macOS and Windows.
+"""
 from __future__ import annotations
 
 import sys
 import logging
-import subprocess
 from enum import Enum, auto
 from pathlib import Path
 
@@ -26,22 +28,100 @@ logging.basicConfig(
 )
 logger = logging.getLogger("WaterBuddy")
 
-ASSETS_DIR = Path(__file__).resolve().parent / "assets"
+ASSETS_DIR  = Path(__file__).resolve().parent / "assets"
 PLIST_LABEL = "com.waterbuddy.app"
+IS_MAC      = sys.platform == "darwin"
+IS_WIN      = sys.platform == "win32"
 
+
+# ── Platform helpers ────────────────────────────────────────────────
 
 def _hide_from_dock() -> None:
-    """Remove Water Buddy from the macOS Dock — menu-bar-only app."""
+    """Remove Water Buddy from the macOS Dock (no-op on Windows)."""
+    if not IS_MAC:
+        return
     try:
-        from AppKit import NSApplication, NSApplicationActivationPolicy
-        ns_app = NSApplication.sharedApplication()
-        # NSApplicationActivationPolicyAccessory = 1 (background agent, no Dock icon)
-        ns_app.setActivationPolicy_(1)
+        from AppKit import NSApplication  # type: ignore[import]
+        # NSApplicationActivationPolicyAccessory = 1
+        NSApplication.sharedApplication().setActivationPolicy_(1)
         logger.info("App hidden from Dock via AppKit.")
     except Exception as exc:
-        # Falls back to LSUIElement in .app bundle — no action needed
+        # Falls back gracefully — LSUIElement in .app bundle covers this
         logger.debug("Could not set Dock policy via AppKit: %s", exc)
 
+
+def _set_launch_at_login_mac(enabled: bool) -> None:
+    """Write or remove a LaunchAgent plist on macOS."""
+    plist_dir  = Path.home() / "Library" / "LaunchAgents"
+    plist_path = plist_dir / f"{PLIST_LABEL}.plist"
+    python_exe = Path(sys.executable).resolve()
+    script     = Path(__file__).resolve()
+
+    if enabled:
+        plist_dir.mkdir(parents=True, exist_ok=True)
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>{PLIST_LABEL}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{python_exe}</string>
+        <string>{script}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>"""
+        plist_path.write_text(plist_content)
+        logger.info("macOS launch agent created: %s", plist_path)
+    else:
+        if plist_path.exists():
+            plist_path.unlink()
+            logger.info("macOS launch agent removed.")
+
+
+def _set_launch_at_login_win(enabled: bool) -> None:
+    """Write or remove a Windows Registry run key for auto-start."""
+    try:
+        import winreg  # type: ignore[import]  # Windows-only stdlib module
+        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        app_name = "WaterBuddy"
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE
+        ) as key:
+            if enabled:
+                # Point to the executable / Python script
+                exe = Path(sys.executable).resolve()
+                script = Path(__file__).resolve()
+                value  = f'"{exe}" "{script}"'
+                winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, value)
+                logger.info("Windows run-key set: %s", value)
+            else:
+                try:
+                    winreg.DeleteValue(key, app_name)
+                    logger.info("Windows run-key removed.")
+                except FileNotFoundError:
+                    pass  # Already absent — that's fine
+    except Exception as exc:
+        logger.error("Could not set Windows launch-at-login: %s", exc)
+
+
+def _sync_launch_at_login(settings: SettingsManager) -> None:
+    enabled = bool(settings.get("launch_at_login"))
+    if IS_MAC:
+        _set_launch_at_login_mac(enabled)
+    elif IS_WIN:
+        _set_launch_at_login_win(enabled)
+    else:
+        logger.debug("Launch-at-login not supported on this platform.")
+
+
+# ── State machine ───────────────────────────────────────────────────
 
 class PetState(Enum):
     HIDDEN      = auto()
@@ -59,7 +139,7 @@ class AppController:
     def __init__(self, app: QApplication) -> None:
         self.app = app
         self.settings = SettingsManager()
-        self.stats = StatsManager()
+        self.stats     = StatsManager()
 
         # UI
         self.ui = DesktopPetUI()
@@ -90,22 +170,21 @@ class AppController:
             self.sound.setVolume(0.5)
 
         # State
-        self.state = PetState.HIDDEN
-        self.x = 0
-        self.y = 0
+        self.state    = PetState.HIDDEN
+        self.x        = 0
+        self.y        = 0
         self.target_x = 0
 
         self.move_timer = QTimer()
         self.move_timer.timeout.connect(self._move_step)
 
-    # ── main loop ───────────────────────────────────────────────
+    # ── Main loop ───────────────────────────────────────────────────
 
     def run(self) -> None:
-        logger.info("Starting Water Buddy application...")
+        logger.info("Starting Water Buddy (%s)…", sys.platform)
         self.ui.hide_window()
 
         if self.settings.get("first_run"):
-            # Delay slightly so the event loop is running before we open the dialog
             QTimer.singleShot(300, self._show_onboarding)
         else:
             self._start_normal()
@@ -120,12 +199,11 @@ class AppController:
         wizard.exec()
 
     def _start_normal(self) -> None:
-        """Called after onboarding is done (or skipped on subsequent runs)."""
-        self._sync_launch_at_login()
+        _sync_launch_at_login(self.settings)
         self._update_tray_stats()
         self.reminders.start()
 
-    # ── reminder handling ───────────────────────────────────────
+    # ── Reminder handling ───────────────────────────────────────────
 
     def handle_reminder(self) -> None:
         logger.info("Reminder triggered. State: %s", self.state)
@@ -133,12 +211,12 @@ class AppController:
             self.start_walk_in()
 
     def start_walk_in(self) -> None:
-        self.state = PetState.WALKING_IN
-        screen_w = self.ui.screen_width()
-        screen_h = self.ui.screen_height()
+        self.state    = PetState.WALKING_IN
+        screen_w      = self.ui.screen_width()
+        screen_h      = self.ui.screen_height()
 
-        self.x = screen_w + 20
-        self.y = screen_h - self.ui.window_height() - 70
+        self.x        = screen_w + 20
+        self.y        = screen_h - self.ui.window_height() - 70
         self.target_x = screen_w - self.ui.window_width() - 50
 
         self.ui.set_position(self.x, self.y)
@@ -172,7 +250,7 @@ class AppController:
                 self.ui.hide_window()
                 self.state = PetState.HIDDEN
 
-    # ── button handlers ─────────────────────────────────────────
+    # ── Button handlers ─────────────────────────────────────────────
 
     def handle_yes(self) -> None:
         if self.state != PetState.ASKING:
@@ -203,7 +281,7 @@ class AppController:
         self.animations.play_walk_out()
         self.move_timer.start(self.MOVE_DELAY_MS)
 
-    # ── tray actions ────────────────────────────────────────────
+    # ── Tray actions ────────────────────────────────────────────────
 
     def toggle_pause(self) -> None:
         if self.reminders.is_paused:
@@ -221,10 +299,10 @@ class AppController:
     def open_settings(self) -> None:
         dialog = SettingsDialog(self.settings, self.stats, start_tab=0)
         if dialog.exec():
-            logger.info("Settings updated. Restarting timer with new interval.")
+            logger.info("Settings saved. Restarting timer.")
             if not self.reminders.is_paused:
                 self.reminders.start()
-            self._sync_launch_at_login()
+            _sync_launch_at_login(self.settings)
             self._update_tray_stats()
 
     def open_stats(self) -> None:
@@ -237,51 +315,19 @@ class AppController:
         self.reminders.stop()
         self.app.quit()
 
-    # ── helpers ─────────────────────────────────────────────────
+    # ── Helpers ─────────────────────────────────────────────────────
 
     def _update_tray_stats(self) -> None:
         self.tray.update_stats_text(self.stats.today_count(), self.stats.daily_goal)
 
-    def _sync_launch_at_login(self) -> None:
-        """Create or remove a macOS LaunchAgent plist for auto-start."""
-        plist_dir  = Path.home() / "Library" / "LaunchAgents"
-        plist_path = plist_dir / f"{PLIST_LABEL}.plist"
-        python_path = Path(sys.executable).resolve()
-        script_path = Path(__file__).resolve()
 
-        if self.settings.get("launch_at_login"):
-            plist_dir.mkdir(parents=True, exist_ok=True)
-            plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>{PLIST_LABEL}</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>{python_path}</string>
-        <string>{script_path}</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <false/>
-</dict>
-</plist>"""
-            plist_path.write_text(plist_content)
-            logger.info("Launch agent created: %s", plist_path)
-        else:
-            if plist_path.exists():
-                plist_path.unlink()
-                logger.info("Launch agent removed.")
-
+# ── Entry point ─────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(False)  # Keep running when windows close
+    app.setQuitOnLastWindowClosed(False)
 
-    # Hide from macOS Dock — this is a menu-bar-only background agent
+    # Hide from macOS Dock — graceful no-op on Windows
     _hide_from_dock()
 
     controller = AppController(app)
