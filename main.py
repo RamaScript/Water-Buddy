@@ -10,8 +10,8 @@ from enum import Enum, auto
 from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QTimer, QUrl
-from PyQt6.QtMultimedia import QSoundEffect
+from PyQt6.QtCore import QTimer, QUrl, Qt
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 from ui import DesktopPetUI
 from animations import AnimationManager
@@ -143,6 +143,7 @@ class AppController:
 
         # UI
         self.ui = DesktopPetUI()
+        self.ui.set_on_hidden_externally(self._on_window_hidden_externally)
         self.animations = AnimationManager(
             image_label=self.ui.image_label,
             assets_dir=ASSETS_DIR,
@@ -162,12 +163,18 @@ class AppController:
             on_quit=self.quit_app,
         )
 
+        # Dialog references (kept alive to prevent GC)
+        self._settings_dialog = None
+        self._stats_dialog = None
+
         # Sound
-        self.sound = QSoundEffect()
-        sound_path = ASSETS_DIR / "notification.wav"
-        if sound_path.exists():
-            self.sound.setSource(QUrl.fromLocalFile(str(sound_path)))
-            self.sound.setVolume(0.5)
+        self.sound_path = ASSETS_DIR / "notification.wav"
+        self.audio_output = QAudioOutput()
+        self.audio_output.setVolume(0.5)
+        self.player = QMediaPlayer()
+        self.player.setAudioOutput(self.audio_output)
+        if self.sound_path.exists():
+            self.player.setSource(QUrl.fromLocalFile(str(self.sound_path)))
 
         # State
         self.state    = PetState.HIDDEN
@@ -177,6 +184,15 @@ class AppController:
 
         self.move_timer = QTimer()
         self.move_timer.timeout.connect(self._move_step)
+
+        # Tray reminder countdown (updates every 500ms)
+        self._tray_timer = QTimer()
+        self._tray_timer.timeout.connect(self._update_tray_reminder)
+        self._tray_timer.start(500)
+
+        # Sleep/wake handling
+        self._was_asleep = False
+        app.applicationStateChanged.connect(self._on_app_state_changed)
 
     # ── Main loop ───────────────────────────────────────────────────
 
@@ -225,7 +241,8 @@ class AppController:
         self.animations.play_walk_in()
 
         if self.settings.sound_enabled:
-            self.sound.play()
+            self._sync_sound_to_system_volume()
+            self.player.play()
 
         self.move_timer.start(self.MOVE_DELAY_MS)
 
@@ -297,23 +314,98 @@ class AppController:
         logger.info("Drink recorded via tray. Today: %d", self.stats.today_count())
 
     def open_settings(self) -> None:
-        dialog = SettingsDialog(self.settings, self.stats, start_tab=0)
-        if dialog.exec():
-            logger.info("Settings saved. Restarting timer.")
-            if not self.reminders.is_paused:
-                self.reminders.start()
-            _sync_launch_at_login(self.settings)
-            self._update_tray_stats()
+        if self._settings_dialog is not None:
+            self._settings_dialog.raise_()
+            self._settings_dialog.activateWindow()
+            return
+        dlg = SettingsDialog(self.settings, self.stats, start_tab=0)
+        dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        dlg.accepted.connect(self._on_settings_saved)
+        dlg.finished.connect(lambda _: self._clear_dialog("_settings_dialog"))
+        self._settings_dialog = dlg
+        dlg.show()
+
+    def _on_settings_saved(self) -> None:
+        logger.info("Settings saved. Restarting timer.")
+        if not self.reminders.is_paused:
+            self.reminders.start()
+        _sync_launch_at_login(self.settings)
+        self._update_tray_stats()
 
     def open_stats(self) -> None:
-        dialog = SettingsDialog(self.settings, self.stats, start_tab=1)
-        dialog.exec()
-        self._update_tray_stats()
+        if self._stats_dialog is not None:
+            self._stats_dialog.raise_()
+            self._stats_dialog.activateWindow()
+            return
+        dlg = SettingsDialog(self.settings, self.stats, start_tab=1)
+        dlg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        dlg.finished.connect(lambda _: self._clear_dialog("_stats_dialog"))
+        self._stats_dialog = dlg
+        dlg.show()
+
+    def _clear_dialog(self, attr: str) -> None:
+        setattr(self, attr, None)
 
     def quit_app(self) -> None:
         logger.info("Quitting Water Buddy.")
         self.reminders.stop()
         self.app.quit()
+
+    def _on_app_state_changed(self, state: Qt.ApplicationState) -> None:
+        if state == Qt.ApplicationState.ApplicationSuspended:
+            self._was_asleep = True
+            if self.state != PetState.HIDDEN:
+                self.ui.hide_window()
+                self.move_timer.stop()
+                self.state = PetState.HIDDEN
+            self.reminders.stop()
+            logger.info("System sleep detected — reminders paused.")
+        elif state == Qt.ApplicationState.ApplicationActive and self._was_asleep:
+            self._was_asleep = False
+            if not self.reminders.is_paused:
+                self.reminders.start()
+            logger.info("System wake detected — reminders restarted.")
+
+    def _update_tray_reminder(self) -> None:
+        if self.state != PetState.HIDDEN:
+            self.tray.update_reminder_time("💧  Buddy is here!")
+        elif self.reminders.is_paused:
+            self.tray.update_reminder_time("⏸️  Paused")
+        elif self.reminders.quiet_hours_active:
+            self.tray.update_reminder_time("🌙  Quiet hours")
+        else:
+            self.tray.update_reminder_time(f"⏱️  Next — {self.reminders.remaining_str}")
+
+    def _on_window_hidden_externally(self) -> None:
+        """Called when the OS hides our window without us asking (e.g. macOS
+        window manager hiding a Tool window on app deactivation).
+
+        Resets the state machine so the next reminder can bring the pet back.
+        """
+        logger.warning("Window hidden externally — resetting state to HIDDEN")
+        self.move_timer.stop()
+        self.state = PetState.HIDDEN
+
+    def _sync_sound_to_system_volume(self) -> None:
+        """Set sound to 50% of the current macOS system output volume."""
+        if not IS_MAC:
+            self.audio_output.setVolume(0.5)
+            return
+
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["osascript", "-e", "output volume of (get volume settings)"],
+                capture_output=True, text=True, timeout=2,
+            )
+            raw = result.stdout.strip()
+            sys_vol = int(raw)
+            vol = max(0.0, min(1.0, sys_vol / 200.0))
+            self.audio_output.setVolume(vol)
+            logger.debug("System vol=%d → sound vol=%.2f", sys_vol, vol)
+        except Exception as exc:
+            logger.warning("Could not read system volume: %s", exc)
+            self.audio_output.setVolume(0.5)
 
     # ── Helpers ─────────────────────────────────────────────────────
 

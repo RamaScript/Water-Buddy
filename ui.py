@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QFrame,
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEvent
 
 IS_MAC = sys.platform == "darwin"
 IS_WIN = sys.platform == "win32"
@@ -26,27 +26,40 @@ class DesktopPetUI(QWidget):
         super().__init__()
         self.on_yes:    Callable[[], None] | None = None
         self.on_snooze: Callable[[], None] | None = None
+        self._hiding_programmatically = False
+        self._on_hidden_externally: Callable[[], None] | None = None
         self._configure_window()
         self._build_layout()
 
     def _configure_window(self):
-        # FramelessWindowHint + TranslucentBackground = transparent floating window
-        # WindowStaysOnTopHint = always on top
-        # On macOS: Qt.WindowType.Tool keeps it out of Mission Control / app switcher
-        # On Windows: Tool makes it skip the taskbar (which is what we want for a pet)
         flags = (
             Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.Tool
         )
+        # Tool flag: on macOS it causes the window to be hidden when the
+        # app is not active — we skip it so the pet stays visible even
+        # when clicking other apps. On Windows, Tool keeps it out of the
+        # taskbar, which is what we want.
+        if IS_WIN:
+            flags |= Qt.WindowType.Tool
+
         self.setWindowFlags(flags)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
 
-        # On Windows, also set WA_NoSystemBackground to avoid black background flash
         if IS_WIN:
             self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
 
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.Hide and not self._hiding_programmatically:
+            if self._on_hidden_externally:
+                self._on_hidden_externally()
+        super().changeEvent(event)
+
+    def set_on_hidden_externally(self, callback: Callable[[], None]) -> None:
+        self._on_hidden_externally = callback
 
     def _build_layout(self):
         self.main_layout = QVBoxLayout(self)
@@ -150,10 +163,11 @@ class DesktopPetUI(QWidget):
     def show_window(self):
         self.show()
         self.raise_()
-        self.activateWindow()
 
     def hide_window(self):
+        self._hiding_programmatically = True
         self.hide()
+        self._hiding_programmatically = False
 
     def set_position(self, x, y):
         self.move(x, y)

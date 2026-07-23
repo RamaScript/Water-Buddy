@@ -822,6 +822,10 @@
    '/Users/ramascript/Work/Rama/playground/MINE/water '
    'buddy/build/waterbuddy/WaterBuddy',
    'EXECUTABLE'),
+  ('assets/.checkmark.png',
+   '/Users/ramascript/Work/Rama/playground/MINE/water '
+   'buddy/assets/.checkmark.png',
+   'DATA'),
   ('assets/angry.png',
    '/Users/ramascript/Work/Rama/playground/MINE/water buddy/assets/angry.png',
    'DATA'),

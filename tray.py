@@ -61,9 +61,9 @@ class SystemTrayApp:
         self.menu = QMenu()
         self.menu.setStyleSheet("""
             QMenu {
-                background-color: #1e1e2e;
-                color: #cdd6f4;
-                border: 1px solid #45475a;
+                background-color: #0d1117;
+                color: #e6edf3;
+                border: 1px solid #21262d;
                 border-radius: 8px;
                 padding: 4px;
             }
@@ -72,14 +72,23 @@ class SystemTrayApp:
                 border-radius: 4px;
             }
             QMenu::item:selected {
-                background-color: #45475a;
+                background-color: #1c2333;
+            }
+            QMenu::item:disabled {
+                color: #484f58;
             }
             QMenu::separator {
                 height: 1px;
-                background: #45475a;
+                background: #21262d;
                 margin: 4px 8px;
             }
         """)
+
+        # ── Live countdown (disabled, display-only) ──
+        self.reminder_action = self.menu.addAction("⏱️  Next — --:--")
+        self.reminder_action.setEnabled(False)
+
+        self.menu.addSeparator()
 
         self.pause_action = self.menu.addAction("⏸️  Pause Reminders")
         self.pause_action.triggered.connect(on_pause_toggle)
@@ -112,6 +121,9 @@ class SystemTrayApp:
         else:
             self.pause_action.setText("⏸️  Pause Reminders")
             self.tray.setToolTip("Water Buddy 💧")
+
+    def update_reminder_time(self, text: str) -> None:
+        self.reminder_action.setText(text)
 
     def update_stats_text(self, count: int, goal: int) -> None:
         self.drink_action.setText(f"💧  Drink Now! ({count}/{goal} today)")

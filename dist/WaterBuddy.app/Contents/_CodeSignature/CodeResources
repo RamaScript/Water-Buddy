@@ -500,6 +500,10 @@
 		<data>
 		XoMTEbKV2RXCdV3NE9fDsAAttiE=
 		</data>
+		<key>Resources/assets/.checkmark.png</key>
+		<data>
+		+xdkM4CiRbdpipHPMANTmE1AEo0=
+		</data>
 		<key>Resources/assets/angry.png</key>
 		<data>
 		z/IoVET8T90BTFi9JF42uaqolZk=
@@ -566,7 +570,7 @@
 		</data>
 		<key>Resources/base_library.zip</key>
 		<data>
-		Uy9j5o6pIBaxAezi4GtQaDL1fDA=
+		un2RejTpmIZIW2ZvSkrId74Wvck=
 		</data>
 		<key>Resources/icon.icns</key>
 		<data>
@@ -2526,6 +2530,13 @@
 			<key>symlink</key>
 			<string>PyQt6/Qt6/lib/QtWidgets.framework/Versions/A/QtWidgets</string>
 		</dict>
+		<key>Resources/assets/.checkmark.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7wP1tb4hvo265dymKXp8b62465Wd2yROyVY9TDNs3XQ=
+			</data>
+		</dict>
 		<key>Resources/assets/angry.png</key>
 		<dict>
 			<key>hash2</key>
@@ -2642,7 +2653,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			tGR9DAd9Tr0NQhfQomzympP97HbA5HvLNsU0PgPSl+k=
+			FV350lesrZY+08Myqdmv0KL6ebPx64JxiJzLaZlAsjQ=
 			</data>
 		</dict>
 		<key>Resources/icon.icns</key>

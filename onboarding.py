@@ -17,36 +17,42 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("WaterBuddy")
 
-# ── Palette ──────────────────────────────────────────────────────
-BG      = "#1e1e2e"
-MANTLE  = "#181825"
-SURFACE = "#313244"
-OVERLAY = "#45475a"
-TEXT    = "#cdd6f4"
-SUBTEXT = "#a6adc8"
-MUTED   = "#6c7086"
-BLUE    = "#89b4fa"
-GREEN   = "#a6e3a1"
-TEAL    = "#94e2d5"
-PEACH   = "#fab387"
+# ── Light palette ─────────────────────────────────────────────────
+BG      = "#f8f9fa"
+SURFACE = "#ffffff"
+CARD    = "#ffffff"
+BORDER  = "#dee2e6"
+TEXT    = "#1a1a2e"
+SUBTEXT = "#495057"
+MUTED   = "#adb5bd"
+BLUE    = "#2563eb"
+GREEN   = "#16a34a"
+TEAL    = "#0d9488"
+PEACH   = "#ea580c"
 
 WIZARD_STYLE = f"""
 QDialog {{
-    background-color: {BG};
+    background: {BG};
     color: {TEXT};
 }}
+QFrame#wizard_footer {{
+    background: {SURFACE};
+    border: none;
+    border-top: 1px solid {BORDER};
+}}
 QWidget {{
-    font-family: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }}
 QLabel {{
     color: {TEXT};
     background: transparent;
+    border: none;
 }}
 QLineEdit {{
-    background-color: {SURFACE};
+    background: {SURFACE};
     color: {TEXT};
-    border: 2px solid {OVERLAY};
-    border-radius: 10px;
+    border: 1px solid {BORDER};
+    border-radius: 8px;
     padding: 10px 14px;
     font-size: 15px;
 }}
@@ -54,10 +60,10 @@ QLineEdit:focus {{
     border-color: {BLUE};
 }}
 QSpinBox {{
-    background-color: {SURFACE};
+    background: {SURFACE};
     color: {TEXT};
-    border: 2px solid {OVERLAY};
-    border-radius: 10px;
+    border: 1px solid {BORDER};
+    border-radius: 8px;
     padding: 8px 14px;
     font-size: 15px;
 }}
@@ -65,76 +71,72 @@ QSpinBox:focus {{
     border-color: {BLUE};
 }}
 QSpinBox::up-button, QSpinBox::down-button {{
-    background-color: {OVERLAY};
-    border-radius: 4px;
-    width: 24px;
+    background: {BG};
+    border-radius: 3px;
+    width: 22px;
 }}
 QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
-    background-color: {BLUE};
+    background: {BLUE};
 }}
 QPushButton#next {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 {BLUE}, stop:1 #74c7ec);
-    color: {MANTLE};
+    background: {BLUE};
+    color: #ffffff;
     border: none;
-    border-radius: 12px;
-    padding: 12px 32px;
+    border-radius: 8px;
+    padding: 10px 28px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
 }}
 QPushButton#next:hover {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #74c7ec, stop:1 {BLUE});
+    background: #1d4ed8;
 }}
-QPushButton#next:pressed {{ padding: 13px 30px 11px 34px; }}
+QPushButton#next:pressed {{ padding: 11px 27px 9px 29px; }}
 QPushButton#finish {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 {GREEN}, stop:1 {TEAL});
-    color: {MANTLE};
+    background: {GREEN};
+    color: #ffffff;
     border: none;
-    border-radius: 12px;
-    padding: 12px 32px;
+    border-radius: 8px;
+    padding: 10px 28px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
 }}
 QPushButton#finish:hover {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 {TEAL}, stop:1 {GREEN});
+    background: #15803d;
 }}
 QPushButton#back {{
     background: transparent;
-    color: {MUTED};
-    border: none;
-    border-radius: 10px;
-    padding: 12px 20px;
+    color: {SUBTEXT};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 10px 20px;
     font-size: 14px;
 }}
 QPushButton#back:hover {{
     color: {TEXT};
-    background-color: {SURFACE};
+    background: {BG};
+    border-color: {SUBTEXT};
 }}
 QPushButton#tog_on {{
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 {GREEN}, stop:1 {TEAL});
-    color: {MANTLE};
+    background: {BLUE};
+    color: #ffffff;
     border: none;
     border-radius: 24px;
     padding: 12px 32px;
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 600;
     min-width: 200px;
 }}
 QPushButton#tog_off {{
     background: {SURFACE};
     color: {SUBTEXT};
-    border: 2px solid {OVERLAY};
+    border: 1px solid {BORDER};
     border-radius: 24px;
     padding: 12px 32px;
     font-size: 14px;
     min-width: 200px;
 }}
-QPushButton#tog_on:hover {{ background: {TEAL}; }}
-QPushButton#tog_off:hover {{ background: {OVERLAY}; color: {TEXT}; }}
+QPushButton#tog_on:hover {{ background: #1d4ed8; }}
+QPushButton#tog_off:hover {{ background: {BG}; color: {TEXT}; border-color: {SUBTEXT}; }}
 """
 
 
@@ -145,7 +147,6 @@ class _Dots(QWidget):
         super().__init__(parent)
         self.total   = total
         self.current = 0
-        # Each dot: 10px wide + 8px gap; active dot 18px wide
         self.setFixedSize(total * 18 + (total - 1) * 8, 10)
 
     def set_step(self, step: int):
@@ -163,11 +164,11 @@ class _Dots(QWidget):
                 p.setBrush(QBrush(QColor(BLUE)))
                 p.setPen(Qt.PenStyle.NoPen)
             elif i < self.current:
-                p.setBrush(QBrush(QColor(OVERLAY)))
+                p.setBrush(QBrush(QColor(MUTED)))
                 p.setPen(Qt.PenStyle.NoPen)
             else:
                 p.setBrush(QBrush(QColor(SURFACE)))
-                p.setPen(QPen(QColor(OVERLAY), 1.5))
+                p.setPen(QPen(QColor(BORDER), 1.5))
             p.drawRoundedRect(x, 0, w, h, 5, 5)
             x += w + 8
         p.end()
@@ -177,56 +178,40 @@ class _Dots(QWidget):
 
 def _hero(emoji: str, size: int = 64) -> QLabel:
     lbl = QLabel(emoji)
+    lbl.setStyleSheet(f"font-size:{size}px; background:transparent; border:none;")
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    lbl.setStyleSheet(f"font-size:{size}px; background:transparent;")
     return lbl
 
 
-def _title(text: str) -> QLabel:
+def _heading(text: str) -> QLabel:
     lbl = QLabel(text)
+    lbl.setStyleSheet(
+        f"font-size:22px; font-weight:700; color:{TEXT}; background:transparent; border:none;"
+    )
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
     lbl.setWordWrap(True)
-    lbl.setStyleSheet(
-        f"font-size:22px; font-weight:700; color:{TEXT}; background:transparent;"
-    )
     return lbl
 
 
 def _body(text: str) -> QLabel:
     lbl = QLabel(text)
+    lbl.setStyleSheet(
+        f"font-size:14px; color:{SUBTEXT}; background:transparent; border:none;"
+    )
     lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
     lbl.setWordWrap(True)
-    lbl.setStyleSheet(
-        f"font-size:13px; color:{SUBTEXT}; background:transparent; line-height:150%;"
-    )
     return lbl
 
 
-def _card(emoji: str, text: str) -> QFrame:
-    card = QFrame()
-    card.setStyleSheet(
-        f"QFrame {{ background:{SURFACE}; border-radius:10px; border:1px solid {OVERLAY}; }}"
-    )
-    row = QHBoxLayout(card)
-    row.setContentsMargins(14, 10, 14, 10)
-    row.setSpacing(12)
-    ico = QLabel(emoji)
-    ico.setStyleSheet("font-size:20px; background:transparent; border:none;")
-    ico.setFixedWidth(28)
-    row.addWidget(ico)
-    txt = QLabel(text)
-    txt.setWordWrap(True)
-    txt.setStyleSheet(f"font-size:13px; color:{SUBTEXT}; background:transparent; border:none;")
-    row.addWidget(txt, 1)
-    return card
-
-
-def _field_label(text: str) -> QLabel:
-    lbl = QLabel(text)
-    lbl.setStyleSheet(
-        f"font-size:13px; font-weight:600; color:{TEXT}; background:transparent;"
-    )
-    return lbl
+def _card(widgets: list[QWidget], spacing: int = 6) -> QFrame:
+    f = QFrame()
+    f.setStyleSheet(f"background:{SURFACE}; border:1px solid {BORDER}; border-radius:10px;")
+    lay = QVBoxLayout(f)
+    lay.setContentsMargins(16, 14, 16, 14)
+    lay.setSpacing(spacing)
+    for w in widgets:
+        lay.addWidget(w)
+    return f
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -234,307 +219,216 @@ def _field_label(text: str) -> QLabel:
 # ══════════════════════════════════════════════════════════════════
 
 class OnboardingWizard(QDialog):
-    TOTAL = 4
+    """4-step first-run wizard."""
 
-    def __init__(self, settings: "SettingsManager", on_complete: Callable, parent=None):
-        super().__init__(parent)
-        self.settings     = settings
-        self.on_complete  = on_complete
-        self._login_on    = False
-        self._step        = 0
+    def __init__(self, settings: "SettingsManager",
+                 on_complete: Callable[[], None]):
+        super().__init__()
+        self.settings = settings
+        self.on_complete = on_complete
 
         self.setWindowTitle("Welcome to Water Buddy")
-        self.setFixedSize(460, 580)
+        self.setFixedSize(480, 560)
         self.setStyleSheet(WIZARD_STYLE)
-        self.setWindowFlags(
-            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint
-        )
 
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
+        root.setContentsMargins(0, 0, 0, 0)
 
-        # Pages
+        # Content area
         self.stack = QStackedWidget()
         self.stack.addWidget(self._page_welcome())
-        self.stack.addWidget(self._page_howto())
-        self.stack.addWidget(self._page_setup())
-        self.stack.addWidget(self._page_login())
-        root.addWidget(self.stack, 1)
+        self.stack.addWidget(self._page_name())
+        self.stack.addWidget(self._page_interval())
+        self.stack.addWidget(self._page_done())
+        root.addWidget(self.stack)
 
-        # Nav bar
-        nav = QFrame()
-        nav.setFixedHeight(76)
-        nav.setStyleSheet(
-            f"background:{SURFACE}; border-top:1px solid {OVERLAY};"
-        )
-        nav_row = QHBoxLayout(nav)
-        nav_row.setContentsMargins(24, 0, 24, 0)
-        nav_row.setSpacing(12)
+        # Footer
+        footer = QFrame()
+        footer.setObjectName("wizard_footer")
+        fl = QHBoxLayout(footer)
+        fl.setContentsMargins(20, 12, 20, 12)
 
-        self.dots = _Dots(self.TOTAL)
-        nav_row.addWidget(self.dots)
-        nav_row.addStretch()
-
-        self.back_btn = QPushButton("← Back")
+        self.back_btn = QPushButton("Back")
         self.back_btn.setObjectName("back")
-        self.back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.back_btn.setVisible(False)
         self.back_btn.clicked.connect(self._go_back)
-        nav_row.addWidget(self.back_btn)
-
-        self.next_btn = QPushButton("Next →")
+        self.back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.dots = _Dots(4)
+        self.next_btn = QPushButton("Next")
         self.next_btn.setObjectName("next")
-        self.next_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.next_btn.clicked.connect(self._go_next)
-        nav_row.addWidget(self.next_btn)
+        self.next_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        root.addWidget(nav)
+        fl.addWidget(self.back_btn)
+        fl.addStretch()
+        fl.addWidget(self.dots, alignment=Qt.AlignmentFlag.AlignCenter)
+        fl.addStretch()
+        fl.addWidget(self.next_btn)
+        root.addWidget(footer)
 
-    # ── Pages ────────────────────────────────────────────────────
+        self._step = 0
+        self._sync()
+
+    # ── Pages ────────────────────────────────────────────────────────
 
     def _page_welcome(self) -> QWidget:
-        page = QWidget()
-        page.setStyleSheet(f"background:{BG};")
-        lay = QVBoxLayout(page)
-        lay.setContentsMargins(36, 44, 36, 24)
-        lay.setSpacing(0)
-
-        lay.addWidget(_hero("💧", 72))
-        lay.addSpacing(18)
-        lay.addWidget(_title("Welcome to Water Buddy"))
-        lay.addSpacing(8)
-        lay.addWidget(_body(
-            "Your tiny desktop companion\nthat keeps you hydrated all day, every day."
+        w = QWidget()
+        w.setStyleSheet(f"background:{BG};")
+        l = QVBoxLayout(w)
+        l.setContentsMargins(40, 40, 40, 20)
+        l.setSpacing(16)
+        l.addStretch()
+        l.addWidget(_hero("💧", 72))
+        l.addSpacing(8)
+        l.addWidget(_heading("Meet Water Buddy"))
+        l.addWidget(_body(
+            "Your friendly desktop pet that reminds you to drink water "
+            "throughout the day. Stay hydrated, stay healthy!"
         ))
-        lay.addSpacing(28)
+        l.addWidget(_body("Let's get you set up in 3 quick steps →"))
+        l.addStretch()
+        return w
 
-        for emoji, text in [
-            ("🐾", "A cute pet that walks across your screen"),
-            ("⏰", "Gentle reminders — never miss a drink again"),
-            ("📊", "Tracks your daily intake & streak"),
-        ]:
-            lay.addWidget(_card(emoji, text))
-            lay.addSpacing(8)
-
-        lay.addStretch()
-        return page
-
-    def _page_howto(self) -> QWidget:
-        page = QWidget()
-        page.setStyleSheet(f"background:{BG};")
-        lay = QVBoxLayout(page)
-        lay.setContentsMargins(36, 44, 36, 24)
-        lay.setSpacing(0)
-
-        lay.addWidget(_hero("🐾", 56))
-        lay.addSpacing(14)
-        lay.addWidget(_title("Here's how it works"))
-        lay.addSpacing(24)
-
-        for emoji, text in [
-            ("😴", "Your pet hides in the background, quietly counting down"),
-            ("🚶", "When the timer fires, it walks in from the screen corner"),
-            ("💬", "It asks: \"Hey! Did you drink water?\""),
-            ("✅", "Click Yes to celebrate — or Snooze if you're busy"),
-            ("💧", "Lives in your menu bar — always there, never in the way"),
-        ]:
-            lay.addWidget(_card(emoji, text))
-            lay.addSpacing(8)
-
-        lay.addStretch()
-        return page
-
-    def _page_setup(self) -> QWidget:
-        page = QWidget()
-        page.setStyleSheet(f"background:{BG};")
-        lay = QVBoxLayout(page)
-        lay.setContentsMargins(36, 36, 36, 24)
-        lay.setSpacing(0)
-
-        lay.addWidget(_hero("⚙️", 48))
-        lay.addSpacing(10)
-        lay.addWidget(_title("Quick Setup"))
-        lay.addSpacing(4)
-        lay.addWidget(_body("You can change everything later in Settings."))
-        lay.addSpacing(28)
-
-        # Name
-        lay.addWidget(_field_label("👤  What's your name?"))
-        lay.addSpacing(6)
+    def _page_name(self) -> QWidget:
+        w = QWidget()
+        w.setStyleSheet(f"background:{BG};")
+        l = QVBoxLayout(w)
+        l.setContentsMargins(40, 40, 40, 20)
+        l.setSpacing(14)
+        l.addStretch()
+        l.addWidget(_hero("👤", 56))
+        l.addWidget(_heading("What's your name?"))
+        l.addWidget(_body("Your buddy will greet you by name."))
+        l.addSpacing(8)
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Enter your name…")
-        self.name_input.setFixedHeight(46)
-        lay.addWidget(self.name_input)
+        self.name_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(self.name_input)
+        l.addSpacing(12)
+        self.login_tog = QPushButton("Launch at login")
+        self.login_tog.setObjectName("tog_on")
+        self.login_tog.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.login_tog.clicked.connect(self._toggle_login)
+        self._login_on = True
+        l.addWidget(self.login_tog)
+        l.addStretch()
+        return w
 
-        lay.addSpacing(22)
+    def _page_interval(self) -> QWidget:
+        w = QWidget()
+        w.setStyleSheet(f"background:{BG};")
+        l = QVBoxLayout(w)
+        l.setContentsMargins(40, 40, 40, 20)
+        l.setSpacing(14)
+        l.addStretch()
+        l.addWidget(_hero("⏰", 56))
+        l.addWidget(_heading("Reminder frequency"))
+        l.addWidget(_body("How often should your buddy check in?"))
+        l.addSpacing(8)
 
-        # Interval
-        lay.addWidget(_field_label("⏰  Remind me every:"))
-        lay.addSpacing(6)
-
-        spin_row = QHBoxLayout()
         self.interval_spin = QSpinBox()
+        card = _card([
+            QLabel("Remind me every"),
+            self.interval_spin,
+        ])
         self.interval_spin.setRange(5, 120)
-        self.interval_spin.setValue(self.settings.get("reminder_interval_min") or 30)
-        self.interval_spin.setSuffix("  min")
-        self.interval_spin.setFixedHeight(46)
-        self.interval_spin.valueChanged.connect(self._update_interval_hint)
-        spin_row.addWidget(self.interval_spin)
-        spin_row.addStretch()
-        lay.addLayout(spin_row)
-        lay.addSpacing(6)
+        self.interval_spin.setSuffix("  minutes")
+        self.interval_spin.setValue(30)
+        self.interval_spin.setFixedWidth(160)
+        self.interval_spin.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(card)
 
-        self.interval_hint = QLabel()
+        self.interval_hint = QLabel("Recommended: 30 minutes")
         self.interval_hint.setStyleSheet(
-            f"font-size:12px; color:{BLUE}; background:transparent;"
+            f"color:{MUTED}; font-size:12px; background:transparent; border:none;"
         )
-        lay.addWidget(self.interval_hint)
-        self._update_interval_hint(self.interval_spin.value())
+        self.interval_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        l.addWidget(self.interval_hint)
+        self.interval_spin.valueChanged.connect(self._on_interval_changed)
 
-        lay.addStretch()
-        return page
+        l.addStretch()
+        return w
 
-    def _page_login(self) -> QWidget:
-        page = QWidget()
-        page.setStyleSheet(f"background:{BG};")
-        lay = QVBoxLayout(page)
-        lay.setContentsMargins(36, 44, 36, 24)
-        lay.setSpacing(0)
-
-        lay.addWidget(_hero("🚀", 60))
-        lay.addSpacing(14)
-        lay.addWidget(_title("Start automatically?"))
-        lay.addSpacing(8)
-        lay.addWidget(_body(
-            "Launch Water Buddy every time your computer starts.\n"
-            "No need to open it manually each day."
+    def _page_done(self) -> QWidget:
+        w = QWidget()
+        w.setStyleSheet(f"background:{BG};")
+        l = QVBoxLayout(w)
+        l.setContentsMargins(40, 40, 40, 20)
+        l.setSpacing(16)
+        l.addStretch()
+        l.addWidget(_hero("🎉", 72))
+        l.addWidget(_heading("You're all set!"))
+        l.addWidget(_body(
+            "Your buddy will start checking in on you soon. "
+            "Stay hydrated and take care!"
         ))
-        lay.addSpacing(32)
+        l.addStretch()
+        return w
 
-        # Big toggle button — centred
-        self.login_toggle = QPushButton("⭕  Off — I'll start it manually")
-        self.login_toggle.setObjectName("tog_off")
-        self.login_toggle.setFixedHeight(50)
-        self.login_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.login_toggle.clicked.connect(self._toggle_login)
-        lay.addWidget(self.login_toggle, alignment=Qt.AlignmentFlag.AlignHCenter)
-
-        lay.addSpacing(20)
-        lay.addWidget(_card("ℹ️",
-            "Water Buddy will appear in your menu bar automatically after every login."))
-
-        lay.addSpacing(12)
-        note = QLabel("You can always change this in Settings → Launch at Login")
-        note.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        note.setWordWrap(True)
-        note.setStyleSheet(f"font-size:11px; color:{MUTED}; background:transparent;")
-        lay.addWidget(note)
-
-        lay.addStretch()
-        return page
-
-    # ── Navigation ───────────────────────────────────────────────
+    # ── Navigation ──────────────────────────────────────────────────
 
     def _go_next(self):
-        if self._step < self.TOTAL - 1:
-            self._step += 1
-            self.stack.setCurrentIndex(self._step)
-            self.dots.set_step(self._step)
-            self.back_btn.setVisible(True)
-
-            if self._step == self.TOTAL - 1:
-                # Switch to finish button
-                self.next_btn.setObjectName("finish")
-                self.next_btn.setText("Let's go! 🎉")
-                # Force style refresh for objectName change
-                self.next_btn.style().unpolish(self.next_btn)
-                self.next_btn.style().polish(self.next_btn)
+        if self._step == 0:
+            self.stack.setCurrentIndex(1)
+            self._step = 1
+        elif self._step == 1:
+            name = self.name_input.text().strip() or "Buddy"
+            self.settings.set("user_name", name)
+            self.settings.set("launch_at_login", self._login_on)
+            self.settings.save()
+            self.stack.setCurrentIndex(2)
+            self._step = 2
+        elif self._step == 2:
+            self.settings.set("reminder_interval_min", self.interval_spin.value())
+            self.settings.save()
+            self.stack.setCurrentIndex(3)
+            self._step = 3
+            self.back_btn.hide()
+            self.next_btn.setText("Get Started 🎉")
+            self.next_btn.setObjectName("finish")
+            self.next_btn.setStyleSheet("")
+            self.next_btn.clicked.disconnect()
+            self.next_btn.clicked.connect(self._finish)
+        self._sync()
 
     def _go_back(self):
-        if self._step > 0:
-            # Restore Next button if coming back from last page
-            if self._step == self.TOTAL - 1:
-                self.next_btn.setObjectName("next")
-                self.next_btn.setText("Next →")
-                self.next_btn.style().unpolish(self.next_btn)
-                self.next_btn.style().polish(self.next_btn)
+        if self._step == 1:
+            self.stack.setCurrentIndex(0)
+            self._step = 0
+        elif self._step == 2:
+            self.stack.setCurrentIndex(1)
+            self._step = 1
+        self._sync()
 
-            self._step -= 1
-            self.stack.setCurrentIndex(self._step)
-            self.dots.set_step(self._step)
-            self.back_btn.setVisible(self._step > 0)
-
-    # ── Actions ──────────────────────────────────────────────────
-
-    def _update_interval_hint(self, val: int):
-        if val == 5:
-            text, color = "⚡  Very frequent! Every 5 minutes", PEACH
-        elif val == 30:
-            text, color = f"💧  Every {val} minutes  ·  Recommended ✓", BLUE
-        elif val >= 90:
-            text, color = f"💤  {val // 60}h {val % 60}m between reminders", PEACH
-        else:
-            text, color = f"💧  I'll visit you every {val} minutes", BLUE
-        self.interval_hint.setText(text)
-        self.interval_hint.setStyleSheet(
-            f"font-size:12px; color:{color}; background:transparent;"
-        )
+    def _sync(self):
+        self.back_btn.setVisible(self._step > 0)
+        self.dots.set_step(self._step)
 
     def _toggle_login(self):
         self._login_on = not self._login_on
-        if self._login_on:
-            self.login_toggle.setObjectName("tog_on")
-            self.login_toggle.setText("✅  On — launch at login")
+        self.login_tog.setObjectName("tog_on" if self._login_on else "tog_off")
+        self.login_tog.setStyleSheet("")
+
+    def _on_interval_changed(self, val: int):
+        if val == 30:
+            self.interval_hint.setText("Recommended: 30 minutes")
+            self.interval_hint.setStyleSheet(
+                f"color:{GREEN}; font-size:12px; background:transparent; border:none;"
+            )
+        elif val < 10:
+            self.interval_hint.setText("Very frequent!")
+            self.interval_hint.setStyleSheet(
+                f"color:{PEACH}; font-size:12px; background:transparent; border:none;"
+            )
         else:
-            self.login_toggle.setObjectName("tog_off")
-            self.login_toggle.setText("⭕  Off — I'll start it manually")
-        self.login_toggle.style().unpolish(self.login_toggle)
-        self.login_toggle.style().polish(self.login_toggle)
+            self.interval_hint.setText(f"Every {val} minutes")
+            self.interval_hint.setStyleSheet(
+                f"color:{MUTED}; font-size:12px; background:transparent; border:none;"
+            )
 
     def _finish(self):
-        name = self.name_input.text().strip() or "Buddy"
-        self.settings.set("user_name",             name)
-        self.settings.set("reminder_interval_min", self.interval_spin.value())
-        self.settings.set("launch_at_login",       self._login_on)
-        self.settings.set("first_run",             False)
+        logger.info("Onboarding complete.")
+        self.settings.set("first_run", False)
         self.settings.save()
-        logger.info("Onboarding done. name=%s, interval=%d, login=%s",
-                    name, self.interval_spin.value(), self._login_on)
         self.accept()
         self.on_complete()
-
-    # Override Next click on last step
-    def _go_next(self):  # noqa: F811
-        if self._step < self.TOTAL - 1:
-            self._step += 1
-            self.stack.setCurrentIndex(self._step)
-            self.dots.set_step(self._step)
-            self.back_btn.setVisible(True)
-
-            if self._step == self.TOTAL - 1:
-                self.next_btn.setObjectName("finish")
-                self.next_btn.setText("Let's go! 🎉")
-                self.next_btn.style().unpolish(self.next_btn)
-                self.next_btn.style().polish(self.next_btn)
-                # Swap handler to finish
-                self.next_btn.clicked.disconnect()
-                self.next_btn.clicked.connect(self._finish)
-        else:
-            self._finish()
-
-    def _go_back(self):  # noqa: F811
-        if self._step > 0:
-            if self._step == self.TOTAL - 1:
-                # Coming back from finish step — restore Next
-                self.next_btn.clicked.disconnect()
-                self.next_btn.clicked.connect(self._go_next)
-                self.next_btn.setObjectName("next")
-                self.next_btn.setText("Next →")
-                self.next_btn.style().unpolish(self.next_btn)
-                self.next_btn.style().polish(self.next_btn)
-
-            self._step -= 1
-            self.stack.setCurrentIndex(self._step)
-            self.dots.set_step(self._step)
-            self.back_btn.setVisible(self._step > 0)
